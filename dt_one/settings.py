@@ -30,7 +30,7 @@ JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
 ALLOWED_HOSTS = ['*']
 
-
+AUTH_USER_MODEL = 'Authentication.User'
 # Application definition
 
 INSTALLED_APPS = [
