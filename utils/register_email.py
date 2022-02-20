@@ -16,6 +16,18 @@ def gmail_send_email(emailUser, password):
     recepient = emailUser
     send_mail(subject, plain_message,
          EMAIL_HOST_USER, [recepient], fail_silently = False, html_message=html_message)
+
+
+def loan_acknowledgement(emailUser):
+    subject = 'Loan Acknowledgemet'
+
+    html_message = render_to_string('email/acknowledgement.html')
+    # message = 'Visit the site and login with your email: {} and password: {}. You can change yor password after signing in.'.format(emailUser,password)
+    plain_message = strip_tags(html_message)
+    recepient = emailUser
+    send_mail(subject, plain_message,
+         EMAIL_HOST_USER, [recepient], fail_silently = False, html_message=html_message)
+         
         
 
 
