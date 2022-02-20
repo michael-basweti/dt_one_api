@@ -48,7 +48,9 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'password',
-            'usertype'
+            'usertype',
+            'passportno',
+            'phone'
         )
         extra_kwargs = {'password':{'write_only':True}}
 
@@ -57,7 +59,9 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            usertype=validated_data['usertype']
+            usertype=validated_data['usertype'],
+            passportno=validated_data['passportno'],
+            phone=validated_data['phone']
         )
         user.set_password(validated_data['password'])
         user.save()
