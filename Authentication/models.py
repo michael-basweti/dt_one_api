@@ -76,5 +76,5 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
     
     class Meta:
-        managed = True
+        managed = False
         db_table = 'Authentication_user'
