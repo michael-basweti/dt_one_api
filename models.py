@@ -137,6 +137,8 @@ class Loans(models.Model):
     remainingamount = models.DecimalField(max_digits=28, decimal_places=2, blank=True, null=True)
     approvedby = models.ForeignKey(AuthenticationUser, models.DO_NOTHING, db_column='approvedby', blank=True, null=True)
     paymentdate = models.DateField(blank=True, null=True)
+    description = models.CharField(max_length=500)
+    payavenue = models.ForeignKey('Payavenue', models.DO_NOTHING, db_column='payavenue')
 
     class Meta:
         managed = False
