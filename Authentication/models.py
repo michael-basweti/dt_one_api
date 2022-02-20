@@ -66,6 +66,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     deleted = models.BooleanField(default=False)
     is_superuser = models.BooleanField(blank=True, null=True)
     usertype = models.ForeignKey(Usertypes, models.DO_NOTHING, db_column='usertype', blank=True, null=True)
+    phone = models.CharField(max_length=20)
+    passportno = models.CharField(max_length=20)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
