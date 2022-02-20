@@ -139,6 +139,9 @@ class Loans(models.Model):
     paymentdate = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=500)
     payavenue = models.ForeignKey('Payavenue', models.DO_NOTHING, db_column='payavenue')
+    denied = models.BooleanField(blank=True, null=True)
+    deniedreason = models.CharField(max_length=500, blank=True, null=True)
+    approvalcomments = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
         managed = False
