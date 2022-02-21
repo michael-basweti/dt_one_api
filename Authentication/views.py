@@ -71,3 +71,56 @@ class LoginView(APIView):
         }
 
         return Response(error, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UpdateUserPassword(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def put(self, request):
+        old_password = request.data.get('old_password')
+        password1 = request.data.get('password1')
+        password = request.data.get('password')
+        user = request.user
+        # verify password
+        pass_check = user.check_password(old_password)
+        if password != password1:
+            data = {
+                "message": "password update error",
+                "real_message": "password1 is not equal to password2"
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        if not pass_check:
+            data = {
+                "message": "password update error",
+                "real_message": "old password is not correct"
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print("ok")
+            serializer_class = UserSerializer(
+                user, {"password": password}, partial=True)
+            if serializer_class.is_valid():
+                serializer_class.save()
+
+                # login
+                user = authenticate(
+                    email=request.user.email, password=password)
+
+                if user:
+                    auth_token = jwt.encode(
+                        {'email': user.email}, settings.JWT_SECRET_KEY)
+                    serializer_class_login = UserSerializer(user)
+                    data = {
+                        'message': "Password successfully updated",
+                        'user': serializer_class_login.data,
+                        'token': auth_token
+                    }
+
+                    return Response(data, status=status.HTTP_200_OK)
+                else:
+                    data = {
+                        'detail': 'Invalid Credentials'
+                    }
+                    return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
