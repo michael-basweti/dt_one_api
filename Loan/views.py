@@ -1,8 +1,8 @@
 from functools import partial
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Loans
-from .serializers import LoansSerializer, PaymentsSerializer
+from .models import Loans, Payavenue
+from .serializers import LoansSerializer, PaymentsSerializer, PayavenueSerializer
 from rest_framework import permissions, status
 from utils.register_email import loan_acknowledgement,loan_approval, loan_denied
 
@@ -108,3 +108,15 @@ class DenyLoan(APIView):
 
         else:
             return Response(loanSerializer.errors, status=status.HTTP_200_OK)
+
+
+
+# Get Pay Avenues
+
+class GetPayAvenues(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        avenues = Payavenue.objects.all()
+        serializer = PayavenueSerializer(avenues, many=True)
+        return Response(serializer.data)
