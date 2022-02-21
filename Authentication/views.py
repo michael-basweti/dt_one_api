@@ -32,8 +32,10 @@ class UserCreateView(APIView):
         password = ''.join(random.SystemRandom().choice(
             string.ascii_letters + string.digits) for _ in range(10))
 
+        usertype = Usertypes.objects.get(usertypeid=2)
+
         if serializerUser.is_valid():
-            serializerUser.save(password=password)
+            serializerUser.save(password=password,usertype=usertype)
             emailUser = request.data.get('email')
             # aws_email_send(emailUser, password)
             gmail_send_email(emailUser, password)
