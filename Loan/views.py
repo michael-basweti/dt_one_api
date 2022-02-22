@@ -138,3 +138,11 @@ class GetOneUnProcessedLoans(APIView):
         loans = Vwloans.objects.get(loanid=loanid)
         serializer = VwLoansSerializer(loans)
         return Response(serializer.data)
+
+class GetUserLoans(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        loans = Vwloans.objects.filter(requestedby=request.user.id)
+        serializer = VwLoansSerializer(loans, many=True)
+        return Response(serializer.data)
