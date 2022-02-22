@@ -6,4 +6,5 @@ urlpatterns = [
     path('approve', views.ApproveView.as_view(), name='approve'),
     path('deny', views.DenyLoan.as_view(), name='deny'),
     path('payavenues', views.GetPayAvenues.as_view(), name='payavenues'),
+    path('unprocessed', views.GetUnProcessedLoans.as_view(), name='unprocessed'),
 ]
