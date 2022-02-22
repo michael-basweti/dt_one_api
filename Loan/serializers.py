@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Loans, Payavenue, Paymenttype, Payments
+from .models import Loans, Payavenue, Paymenttype, Payments, Vwloans
 
 
 class LoansSerializer(serializers.ModelSerializer):
@@ -22,4 +22,10 @@ class PaymentTypeSerializer(serializers.ModelSerializer):
 class PaymentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payments
+        fields = '__all__'
+
+
+class VwLoansSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vwloans
         fields = '__all__'
