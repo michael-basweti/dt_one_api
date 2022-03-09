@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from .models import Loans, Payavenue, Vwloans, Vwunpaidloans
 from .serializers import LoansSerializer, PaymentsSerializer, PayavenueSerializer, VwLoansSerializer, VwUnpaidLoansSerializer
 from rest_framework import permissions, status
-from utils.register_email import loan_acknowledgement,loan_approval, loan_denied
+from utils.register_email import loan_acknowledgement,loan_approval, loan_denied, reminder_email
 from openpyxl import Workbook
 
 class LoansView(APIView):
@@ -307,3 +307,28 @@ def DueLoansExcel(request, startdate,enddate):
     workbook.save(response)
 
     return response
+
+
+class SendReminderEmails(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, startdate, enddate):
+        today = date.today().strftime("%Y-%m-%d")
+        if(startdate==today and enddate==today):
+            loans = Vwunpaidloans.objects.all()
+        else:
+            loans = Vwunpaidloans.objects.filter(paymentdate__lte=enddate,paymentdate__gte=startdate)
+        
+        emails = []
+
+        for loan in loans:
+            emails.append(loan.email)
+
+        print(emails)
+
+        new_lst=(','.join(emails))
+        reminder_email(emails)
+        data = {
+            "message": "Emails successfully sent"
+        }
+        return Response(data, status=status.HTTP_201_CREATED)
