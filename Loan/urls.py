@@ -11,4 +11,5 @@ urlpatterns = [
     path('oneunprocessed/<loanid>', views.GetOneUnProcessedLoans.as_view(), name='oneunprocessed'),
     path('userloans', views.GetUserLoans.as_view(), name='userloans'),
     path('loansdue/<startdate>/<enddate>', views.GetLoansDue.as_view(), name='loansdue'),
+    path('loansdueexcel/<startdate>/<enddate>', views.DueLoansExcel, name='loansdueexcel'),
 ]
