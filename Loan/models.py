@@ -82,3 +82,32 @@ class Vwloans(models.Model):
     class Meta:
         managed = False  # Created from a view. Don't remove.
         db_table = 'vwloans'
+
+
+class Vwunpaidloans(models.Model):
+    loanid = models.IntegerField(primary_key=True)
+    requestedby = models.IntegerField(blank=True, null=True)
+    requestedon = models.DateField(blank=True, null=True)
+    requestedat = models.TimeField(blank=True, null=True)
+    amountrequested = models.DecimalField(max_digits=28, decimal_places=2, blank=True, null=True)
+    amountdispatched = models.DecimalField(max_digits=28, decimal_places=2, blank=True, null=True)
+    amountpaid = models.DecimalField(max_digits=28, decimal_places=2, blank=True, null=True)
+    approved = models.BooleanField(blank=True, null=True)
+    remainingamount = models.DecimalField(max_digits=28, decimal_places=2, blank=True, null=True)
+    approvedby = models.IntegerField(blank=True, null=True)
+    paymentdate = models.DateField(blank=True, null=True)
+    description = models.CharField(max_length=500, blank=True, null=True)
+    payavenue = models.IntegerField(blank=True, null=True)
+    denied = models.BooleanField(blank=True, null=True)
+    deniedreason = models.CharField(max_length=500, blank=True, null=True)
+    payavenuedescription = models.CharField(max_length=20, blank=True, null=True)
+    requestedname = models.TextField(blank=True, null=True)
+    approvedbyname = models.TextField(blank=True, null=True)
+    fullypaid = models.BooleanField(blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.CharField(max_length=254, blank=True, null=True)
+    real_amount_paid = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
+
+    class Meta:
+        managed = False  # Created from a view. Don't remove.
+        db_table = 'vwunpaidloans'
