@@ -26,6 +26,7 @@ class Loans(models.Model):
     denied = models.BooleanField(blank=True, null=True)
     deniedreason = models.CharField(max_length=500, blank=True, null=True)
     approvalcomments = models.CharField(max_length=500, blank=True, null=True)
+    fullypaid = models.BooleanField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -40,6 +41,7 @@ class Payments(models.Model):
     amountpaid = models.DecimalField(max_digits=28, decimal_places=2)
     paymenttype = models.ForeignKey('Paymenttype', models.DO_NOTHING, db_column='paymenttype')
     payavenue = models.ForeignKey(Payavenue, models.DO_NOTHING, db_column='payavenue')
+    loanid = models.ForeignKey(Loans, models.DO_NOTHING, db_column='loanid', blank=True, null=True)
 
     class Meta:
         managed = False
