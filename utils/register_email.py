@@ -50,3 +50,14 @@ def loan_denied(emailUser):
     recepient = emailUser
     send_mail(subject, plain_message,
          EMAIL_HOST_USER, [recepient], fail_silently = False, html_message=html_message)
+
+
+def reminder_email(emails):
+    subject = 'Payment Reminder'
+
+    html_message = render_to_string('email/reminder.html')
+    # message = 'Visit the site and login with your email: {} and password: {}. You can change yor password after signing in.'.format(emailUser,password)
+    plain_message = strip_tags(html_message)
+    recepient = emails
+    send_mail(subject, plain_message,
+         EMAIL_HOST_USER, recepient, fail_silently = False, html_message=html_message)
