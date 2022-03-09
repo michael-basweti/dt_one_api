@@ -2,11 +2,15 @@ from functools import partial
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import date
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse
 
 from .models import Loans, Payavenue, Vwloans, Vwunpaidloans
 from .serializers import LoansSerializer, PaymentsSerializer, PayavenueSerializer, VwLoansSerializer, VwUnpaidLoansSerializer
 from rest_framework import permissions, status
 from utils.register_email import loan_acknowledgement,loan_approval, loan_denied
+from openpyxl import Workbook
 
 class LoansView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -236,3 +240,70 @@ class CreatePayment(APIView):
                 'message':'You cannot pay for an undispatched loan'
             }
             return Response(data=data,status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET',])
+@permission_classes((IsAuthenticated, ))
+def DueLoansExcel(request, startdate,enddate):
+    today = date.today().strftime("%Y-%m-%d")
+    if(startdate==today and enddate==today):
+        order_queryset = Vwunpaidloans.objects.all()
+    else:
+        order_queryset = Vwunpaidloans.objects.filter(paymentdate__lte=enddate,paymentdate__gte=startdate)
+
+    
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+
+    response['Content-Disposition'] = 'attachment; filename=loansdue.xlsx'
+    workbook = Workbook()
+
+    # Get active worksheet/tab
+    worksheet = workbook.active
+    worksheet.title = 'Loans Due'
+
+    # Define the titles for columns
+    columns = [
+        'LoanId',
+        'Requested By',
+        'Pay Through',
+        'Due Date',
+        'Amount Dispatched',
+        'Amount Paid',
+        'Amount Remaining',
+        'Email',
+        'Phone'
+    ]
+    row_num = 1
+
+    # Assign the titles for each cell of the header
+    for col_num, column_title in enumerate(columns, 1):
+        cell = worksheet.cell(row=row_num, column=col_num)
+        cell.value = column_title
+
+    # Iterate through all orders
+    for order in order_queryset:
+        row_num += 1
+
+        # Define the data for each cell in the row
+        row = [
+            order.loanid,
+            order.requestedname,
+            order.payavenuedescription,
+            order.paymentdate,
+            order.amountdispatched,
+            order.amountpaid,
+            order.remainingamount,
+            order.email,
+            order.phone
+        ]
+
+        # Assign the data for each cell of the row
+        for col_num, cell_value in enumerate(row, 1):
+            cell = worksheet.cell(row=row_num, column=col_num)
+            cell.value = cell_value
+
+    workbook.save(response)
+
+    return response
