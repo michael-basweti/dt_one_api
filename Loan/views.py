@@ -1,8 +1,10 @@
 from functools import partial
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Loans, Payavenue, Vwloans, Payments
-from .serializers import LoansSerializer, PaymentsSerializer, PayavenueSerializer, VwLoansSerializer
+from datetime import date
+
+from .models import Loans, Payavenue, Vwloans, Vwunpaidloans
+from .serializers import LoansSerializer, PaymentsSerializer, PayavenueSerializer, VwLoansSerializer, VwUnpaidLoansSerializer
 from rest_framework import permissions, status
 from utils.register_email import loan_acknowledgement,loan_approval, loan_denied
 
@@ -147,6 +149,21 @@ class GetUserLoans(APIView):
         loans = Vwloans.objects.filter(requestedby=request.user.id)
         serializer = VwLoansSerializer(loans, many=True)
         return Response(serializer.data)
+
+
+class GetLoansDue(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, startdate, enddate):
+        today = date.today().strftime("%Y-%m-%d")
+        if(startdate==today and enddate==today):
+            loans = Vwunpaidloans.objects.all()
+            serializer = VwUnpaidLoansSerializer(loans, many=True)
+            return Response(serializer.data)
+        else:
+            loans = Vwunpaidloans.objects.filter(paymentdate__lte=enddate,paymentdate__gte=startdate)
+            serializer = VwUnpaidLoansSerializer(loans, many=True)
+            return Response(serializer.data)
 
 
 
