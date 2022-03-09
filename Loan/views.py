@@ -1,8 +1,8 @@
 from functools import partial
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Loans, Payavenue, Vwloans
-from .serializers import LoansSerializer, PaymentsSerializer, PayavenueSerializer, VwLoansSerializer
+from .models import Loans, Payavenue, Vwloans, Payments
+from .serializers import LoansSerializer, PaymentsSerializer, PayavenueSerializer
 from rest_framework import permissions, status
 from utils.register_email import loan_acknowledgement,loan_approval, loan_denied
 
@@ -43,7 +43,8 @@ class ApproveView(APIView):
         dataLoan = {
             "amountdispatched":amountdispatched,
             "approvalcomments":approvalcomments,
-            "approved":True
+            "approved":True,
+            "remainingamount":amountdispatched
         }
 
         datapay = {
@@ -146,3 +147,75 @@ class GetUserLoans(APIView):
         loans = Vwloans.objects.filter(requestedby=request.user.id)
         serializer = VwLoansSerializer(loans, many=True)
         return Response(serializer.data)
+
+
+
+class CreatePayment(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self,request):
+        loanid = request.data.get('loanid')
+        amountpaid = request.data.get('amount')
+
+        try:
+            loan = Loans.objects.get(loanid=loanid)
+        except Loans.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        
+        approved = loan.approved
+
+        if approved:
+            amountremaining = float(loan.remainingamount)
+            amounttobepaid = float(amountpaid)
+            amountdifference = amountremaining - amounttobepaid
+
+            if amountdifference < 0:
+                postiveamountdifference = amountdifference*(-1)
+                data = {
+                    "message":"You are overpaying by {}".format(postiveamountdifference)
+                }
+
+                return Response(data=data,status=status.HTTP_404_NOT_FOUND)
+            else:
+                if amountdifference > 0:
+                    fullypaid = False
+                elif amountdifference == 0:
+                    fullypaid = True
+                dataLoan = {
+                    "fullypaid":fullypaid,
+                    "remainingamount":amountdifference
+                }
+
+                datapay = {
+                    "amountpaid":amountpaid,
+                    "paymenttype":1,
+                    "payavenue":loan.payavenue.payavenueid,
+                    "loanid":loanid
+                }
+
+                loanSerializer = LoansSerializer(loan,data=dataLoan,partial=True)
+                payserializer = PaymentsSerializer(data=datapay,partial=True)
+                if loanSerializer.is_valid():
+                    if payserializer.is_valid():
+                        loanSerializer.save(approvedby=request.user)
+                        payserializer.save(processedby=request.user)
+
+                        # emailUser = loan.requestedby.email
+
+                        # loan_approval(emailUser)
+
+                        data = {
+                            "message":"Payment Processed"
+                        }
+
+                        return Response(data, status=status.HTTP_200_OK)
+                    else:
+                        return Response(payserializer.errors, status=status.HTTP_200_OK)
+                else:
+                    return Response(loanSerializer.errors, status=status.HTTP_200_OK)
+        else:
+            data = {
+                'message':'You cannot pay for an undispatched loan'
+            }
+            return Response(data=data,status=status.HTTP_404_NOT_FOUND)
