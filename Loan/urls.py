@@ -12,4 +12,5 @@ urlpatterns = [
     path('userloans', views.GetUserLoans.as_view(), name='userloans'),
     path('loansdue/<startdate>/<enddate>', views.GetLoansDue.as_view(), name='loansdue'),
     path('loansdueexcel/<startdate>/<enddate>', views.DueLoansExcel, name='loansdueexcel'),
+    path('sendemails/<startdate>/<enddate>', views.SendReminderEmails.as_view(), name='sendemails'),
 ]
