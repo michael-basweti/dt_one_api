@@ -76,6 +76,8 @@ class Vwloans(models.Model):
     payavenuedescription = models.CharField(max_length=20, blank=True, null=True)
     requestedname = models.TextField(blank=True, null=True)
     approvedbyname = models.TextField(blank=True, null=True)
+    fullypaid = models.BooleanField(blank=True, null=True)
+    real_amount_paid = models.DecimalField(max_digits=65535, decimal_places=2, blank=True, null=True)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
